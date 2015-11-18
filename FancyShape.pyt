@@ -1,5 +1,5 @@
 import arcpy
-import conversion
+from conversion import polygon_2_line
 
 class Toolbox(object):
     def __init__(self):
@@ -56,4 +56,4 @@ class Polygon2Line(object):
         in_features = parameters[0].valueAsText
         out_features = parameters[1].valueAsText
 
-        conversion.polygon_2_line(in_features, out_features)
+        polygon_2_line(in_features, out_features)

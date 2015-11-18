@@ -1,26 +1,33 @@
 import arcpy
 
-def polygon_2_line(featureClass, outputFC):
-    memFC = arcpy.CreateFeatureclass_management("in_memory", "memFC", "POLYLINE", None, None, None,
-                                                arcpy.Describe(featureClass).spatialReference)
-    featureClass = arcpy.MultipartToSinglepart_management(featureClass)
-    shapefieldname = arcpy.Describe(featureClass).ShapeFieldName
-    cur = arcpy.da.InsertCursor(memFC, ["SHAPE@"])
+
+def polygon_2_line(input_fc, output_fc):
+    """
+    Converts a polygon feature class (FC) into a polyline FC.
+
+    Extracts the vertices of each polygon, converts to point objects, and populates a polyline FC.
+    :param input_fc: Input FC
+    :param output_fc: Output FC
+    :return:
+    """
+    
+    # Create a FC that lives in memory, using the input FC spatial reference
+    mem_fc = arcpy.CreateFeatureclass_management('in_memory', 'mem_fc', 'POLYLINE', None, None, None,
+                                                 arcpy.Describe(input_fc).spatialReference)
+
+    input_fc = arcpy.MultipartToSinglepart_management(input_fc)
+    shapefieldname = arcpy.Describe(input_fc).ShapeFieldName
+    # Cursor to create polylines
+    cur = arcpy.da.InsertCursor(mem_fc, ['SHAPE@'])
+
+    polycursor = arcpy.SearchCursor(input_fc)
     array = arcpy.Array()
-    features = arcpy.UpdateCursor(featureClass)
-
-    for feat in features:
+    # Iterate over features in polygon FC and save vertices to array
+    for feat in polycursor:
         polygon = feat.getValue(shapefieldname)
-
         for vertices in polygon:
-            linecoordinates = []
             for vert in vertices:
-                vertTuple = (vert.X, vert.Y)
-                linecoordinates.append(vertTuple)
-                # # newline = LineString(linecoordinates)
-                # for vert in linecoordinates #newline.coords:
                 array.add(arcpy.Point(vert.X, vert.Y))
             cur.insertRow([arcpy.Polyline(array)])
             array.removeAll()
-
-    arcpy.CopyFeatures_management(memFC, outputFC)
+    arcpy.CopyFeatures_management(mem_fc, output_fc)
