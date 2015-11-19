@@ -59,6 +59,7 @@ class Polygon2Line(object):
 
         conversion.polygon_2_line(in_features, out_features)
 
+
 class Line2Polygon(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
