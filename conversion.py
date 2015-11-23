@@ -23,15 +23,20 @@ def polygon_2_line(input_fc, output_fc):
 
     polycursor = arcpy.SearchCursor(input_fc)
     array = arcpy.Array()
-
+    with open('C:\\Users\\Andy\\PycharmProjects\\FancyShape\\testing\\test.csv', 'w+') as csv:
     # Iterate over features in polygon FC and save vertices to array
-    for feat in polycursor:
-        polygon = feat.getValue(shapefieldname)
-        for vertices in polygon:
-            for vert in vertices:
-                array.add(arcpy.Point(vert.X, vert.Y))
-            cur.insertRow([arcpy.Polyline(array)])
-            array.removeAll()
+        for feat in polycursor:
+            polygon = feat.getValue(shapefieldname)
+            for vertices in polygon:
+                for vert in vertices:
+                    if vert is None:
+                        cur.insertRow([arcpy.Polyline(array)])
+                        array.removeAll()
+                    else:
+                        array.add(arcpy.Point(vert.X, vert.Y))
+                        csv.write(str(vert.X) + ',' + str(vert.Y) + '\n')
+                cur.insertRow([arcpy.Polyline(array)])
+                array.removeAll()
 
     arcpy.CopyFeatures_management(mem_fc, output_fc)
 
@@ -53,6 +58,8 @@ def line_2_polygon(input_fc, output_fc):
         'polygon_2_line' function does not have the same problem, though it uses almost exactly the same logic. I've
         narrowed down the issue as occurring when the InsertCursor writes the array using 'insertRow.' This may be an
         ArcGIS bug. I'll work on a workaround soon.
+
+        Not currently able to process lines to create interior rings in polygons.
     :param input_fc:
     :param output_fc:
     :return:
@@ -79,7 +86,7 @@ def line_2_polygon(input_fc, output_fc):
             for vert in vertices:
                 array.add(arcpy.Point(vert.X, vert.Y))
             array.add(arcpy.Point(initial_x, initial_y))
-            cur.insertRow([arcpy.Polygon(array)])#
+            cur.insertRow([arcpy.Polygon(array)])
             array.removeAll()
 
     arcpy.CopyFeatures_management(mem_fc, output_fc)
