@@ -24,7 +24,7 @@ def polygon_2_line(input_fc, output_fc):
     polycursor = arcpy.SearchCursor(input_fc)
     array = arcpy.Array()
     with open('C:\\Users\\Andy\\PycharmProjects\\FancyShape\\testing\\test.csv', 'w+') as csv:
-    # Iterate over features in polygon FC and save vertices to array
+        # Iterate over features in polygon FC and save vertices to array
         for feat in polycursor:
             polygon = feat.getValue(shapefieldname)
             for vertices in polygon:
