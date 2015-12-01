@@ -123,6 +123,5 @@ class NewLayerVersion(object):
         return
 
     def execute(self, parameters, messages):
-        in_layers = ConversionUtils.gp.GetParameterAsText(0)
-        arcpy.AddMessage(in_layers)
-        utilities.create_layer_version(in_layers)
+        in_features = parameters[0].valueAsText
+        utilities.create_layer_version(in_features)

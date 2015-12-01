@@ -38,16 +38,16 @@ def create_layer_version(layer_multi_input):
 
 
 def create_date_string():
+    current_year = str(datetime.date.today().year)
+
     if datetime.date.today().month < 10:
         current_month = "0" + str(datetime.date.today().month)
     else:
         current_month = str(datetime.date.today().month)
-    current_year = str(datetime.date.today().year)
+
     if datetime.date.today().day < 10:
         current_day = "0" + str(datetime.date.today().day)
     else:
         current_day = str(datetime.date.today().day)
 
-    date_string = current_year + current_month + current_day
-
-    return date_string
+    return current_year + current_month + current_day
