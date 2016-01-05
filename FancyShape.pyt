@@ -1,6 +1,7 @@
 import arcpy
 import utilities
 import conversion
+import near
 
 #
 # Features in future versions:
@@ -14,7 +15,7 @@ class Toolbox(object):
         self.alias = "fancyshape"
 
         # List of tool classes associated with this toolbox
-        self.tools = [Polygon2Line, Line2Polygon, Feature2Point, NewLayerVersion]
+        self.tools = [Polygon2Line, Line2Polygon, Feature2Point, NewLayerVersion, Near]
 
 
 class Polygon2Line(object):
@@ -22,7 +23,7 @@ class Polygon2Line(object):
         self.label = "Polygon to Line"
         self.description = "Converts a polygon feature class into a polyline feature class."
         self.canRunInBackground = False
-        self.category = 'Feature Management'
+        self.category = 'Data Management Tools\\Features'
 
     def getParameterInfo(self):
         in_features = arcpy.Parameter(
@@ -63,7 +64,7 @@ class Line2Polygon(object):
         self.label = "Line to Polygon"
         self.description = "Converts a polyline feature class into a polygon feature class."
         self.canRunInBackground = False
-        self.category = 'Feature Management'
+        self.category = 'Data Management Tools\\Features'
 
     def getParameterInfo(self):
         in_features = arcpy.Parameter(
@@ -104,7 +105,7 @@ class Feature2Point(object):
         self.label = "Feature to Point"
         self.description = "Converts any feature class into a point feature class."
         self.canRunInBackground = False
-        self.category = 'Feature Management'
+        self.category = 'Data Management Tools\\Features'
 
     def getParameterInfo(self):
         in_features = arcpy.Parameter(
@@ -171,3 +172,45 @@ class NewLayerVersion(object):
     def execute(self, parameters, messages):
         in_features = parameters[0].valueAsText
         utilities.create_layer_version(in_features)
+
+
+class Near(object):
+    def __init__(self):
+        self.label = "Near"
+        self.description = "Calculates distance between the input features and the " \
+                           "closest feature in another layer or feature class."
+        self.canRunInBackground = False
+        self.category = 'Analysis Toolbox\\Proximity'
+
+    def getParameterInfo(self):
+        in_features = arcpy.Parameter(
+            displayName='Input Features',
+            name='in_features',
+            datatype='GPFeatureLayer',
+            parameterType='Required',
+            direction='Input'
+        )
+        near_features = arcpy.Parameter(
+            displayName='Near Features',
+            name='near_features',
+            datatype='GPFeatureLayer',
+            parameterType='Required',
+            direction='Input'
+        )
+        parameters = [in_features, near_features]
+        return parameters
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        in_features = parameters[0].valueAsText
+        out_features = parameters[1].valueAsText
+
+        near.near_tool(in_features, out_features)
