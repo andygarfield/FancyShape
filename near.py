@@ -21,9 +21,13 @@ def near_tool(input_fc, near_fc):
             if all([nearest_fid == -1, nearest_distance == -1.0]):
                 nearest_distance = in_row[0].distanceTo(near_projected)
                 nearest_fid = near_row[1]
+                if nearest_distance == 0:
+                    break
             elif in_row[0].distanceTo(near_projected) < nearest_distance:
                 nearest_distance = in_row[0].distanceTo(near_projected)
                 nearest_fid = near_row[1]
+                if nearest_distance == 0:
+                    break
         near_cursor.reset()
         in_row[1] = nearest_fid
         in_row[2] = nearest_distance
