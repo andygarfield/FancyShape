@@ -3,6 +3,7 @@ import ConversionUtils
 import os
 import datetime
 import re
+from os.path import split
 
 
 def create_layer_version(layer_multi_input):
@@ -79,3 +80,22 @@ def create_date_string():
 if __name__ == '__main__':
     in_layers = ConversionUtils.gp.GetParameterAsText(0)
     create_layer_version(in_layers)
+
+
+def project_better(in_dataset, out_dataset, spatial_reference):
+    # Script borrowed from http://joshwerts.com/blog/2015/09/10/arcpy-dot-project-in-memory-featureclass/
+    # Can project a dataset and put the output in an 'in_memory' workspace
+
+    path, name = split(out_dataset)
+    arcpy.CreateFeatureclass_management(path, name, arcpy.Describe(in_dataset).shapeType,
+                                        template=in_dataset,
+                                        spatial_reference=spatial_reference)
+
+    # specify copy of all fields from source to destination
+    fields = ["Shape@"] + [f.name for f in arcpy.ListFields(in_dataset) if not f.required]
+
+    # project source geometries on the fly while inserting to destination featureclass
+    with arcpy.da.SearchCursor(in_dataset, fields, spatial_reference=spatial_reference) as source_curs, \
+         arcpy.da.InsertCursor(out_dataset, fields) as ins_curs:
+        for row in source_curs:
+          ins_curs.insertRow(row)
