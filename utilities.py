@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
 def project_better(in_dataset, out_dataset, spatial_reference):
     # Script borrowed from http://joshwerts.com/blog/2015/09/10/arcpy-dot-project-in-memory-featureclass/
-    # Can project a dataset and put the output in an 'in_memory' workspace
+    # Can project a dataset and create the output in an 'in_memory' workspace
 
     path, name = split(out_dataset)
     arcpy.CreateFeatureclass_management(path, name, arcpy.Describe(in_dataset).shapeType,

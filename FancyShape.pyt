@@ -15,7 +15,7 @@ class Toolbox(object):
         self.alias = "fancyshape"
 
         # List of tool classes associated with this toolbox
-        self.tools = [Polygon2Line, Line2Polygon, Feature2Point, NewLayerVersion, Near]
+        self.tools = [Polygon2Line, Line2Polygon, Feature2Point, NewLayerVersion, Point2GPX, Near]
 
 
 class Polygon2Line(object):
@@ -172,6 +172,69 @@ class NewLayerVersion(object):
     def execute(self, parameters, messages):
         in_features = parameters[0].valueAsText
         utilities.create_layer_version(in_features)
+
+
+class Point2GPX(object):
+    def __init__(self):
+        self.label = "Point to GPX"
+        self.description = "Converts point feature class to GPX file."
+        self.canRunInBackground = False
+        self.category = 'Conversion Tools'
+
+    def getParameterInfo(self):
+        in_features = arcpy.Parameter(
+            displayName='Input Features',
+            name='in_features',
+            datatype='GPFeatureLayer',
+            parameterType='Required',
+            direction='Input'
+        )
+        out_file = arcpy.Parameter(
+            displayName='Output GPX file',
+            name='out_file',
+            datatype='DEFile',
+            parameterType='Required',
+            direction='Output'
+        )
+        name_tag = arcpy.Parameter(
+            displayName='Name tag',
+            name='name_tag',
+            datatype='GPString',
+            parameterType='Required',
+            direction='Output'
+
+        )
+        parameters = [in_features, out_file, name_tag]
+        return parameters
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        in_features = parameters[0].valueAsText
+        out_file = parameters[1].valueAsText
+        name_tag = parameters[2].valueAsText
+
+        utilities.project_better(in_features, 'in_memory\\features_proj', arcpy.SpatialReference(4326))
+        with open(out_file, 'w+') as output:
+            cur = arcpy.da.SearchCursor('in_memory\\features_proj', ['SHAPE@XY', name_tag])
+            output.writelines("""<?xml version=\"1.0\" ?>
+<gpx creator=\"Fancyshape\" version=\"1.1\">""")
+            for row in cur:
+                output.writelines("""  <wpt lat=\"{1}\" lon=\"{0}\">
+    <ele>0</ele>
+    <time> </time>
+    <name>{2}</name>
+    <desc> </desc>
+  </wpt>""".format(row[0][0], row[0][1], row[1]))
+
+            output.writelines("</gpx>")
 
 
 class Near(object):
