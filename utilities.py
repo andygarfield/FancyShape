@@ -77,11 +77,6 @@ def create_date_string():
     return current_year + current_month + current_day
 
 
-if __name__ == '__main__':
-    in_layers = ConversionUtils.gp.GetParameterAsText(0)
-    create_layer_version(in_layers)
-
-
 def project_better(in_dataset, out_dataset, spatial_reference):
     # Script borrowed from http://joshwerts.com/blog/2015/09/10/arcpy-dot-project-in-memory-featureclass/
     # Can project a dataset and create the output in an 'in_memory' workspace
@@ -99,3 +94,8 @@ def project_better(in_dataset, out_dataset, spatial_reference):
          arcpy.da.InsertCursor(out_dataset, fields) as ins_curs:
         for row in source_curs:
           ins_curs.insertRow(row)
+
+
+if __name__ == '__main__':
+    in_layers = ConversionUtils.gp.GetParameterAsText(0)
+    create_layer_version(in_layers)
